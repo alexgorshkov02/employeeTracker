@@ -1,6 +1,6 @@
 const db = require("./db/connection");
 const inquirer = require("inquirer");
-const cTable = require('console.table');
+const cTable = require("console.table");
 const Menu = require("./lib/Menu");
 
 // Establish DB connection
@@ -33,6 +33,17 @@ const mainMenu = async () => {
 
     if (selectedOption.option === "View all departments") {
       const [rows] = await connection.execute(`SELECT * from department`);
+      console.table(rows);
+    } else if (selectedOption.option === "View all roles") {
+      const [rows] = await connection.execute(`
+      SELECT title AS 'Job title',
+        role.id AS id,
+        department.name AS Department,
+        salary AS Salary
+      FROM role
+        JOIN department ON role.department_id = department.id;
+      `);
+
       console.table(rows);
     }
 
