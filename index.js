@@ -33,6 +33,7 @@ const mainMenu = async () => {
 
     if (selectedOption.option === "View all departments") {
       const [rows] = await connection.execute(`SELECT * from department`);
+
       console.table(rows);
     } else if (selectedOption.option === "View all roles") {
       const [rows] = await connection.execute(`
@@ -45,6 +46,24 @@ const mainMenu = async () => {
       `);
 
       console.table(rows);
+    } else if (selectedOption.option === "View all employees") {
+      // THEN I am presented with a formatted table
+      // showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
+      const [rows] = await connection.execute(`
+      SELECT emp.id AS 'Employee ID',
+        emp.first_name AS 'First Name',
+        emp.last_name AS 'Last Name',
+        rol.title AS 'Job Title',
+        dep.name AS Department,
+        rol.salary AS Salary,
+        CONCAT(man.first_name, ' ', man.last_name) AS Manager
+      FROM employee emp
+        JOIN role rol ON emp.role_id = rol.id
+        JOIN department dep ON rol.department_id = dep.id
+        LEFT JOIN employee man ON emp.manager_id = man.id
+        ORDER BY emp.id;
+        `);
+        console.table(rows);
     }
 
     test();
