@@ -1,0 +1,1 @@
+insert INTO department (name) VALUES ("Marketing"), ("Operations"), ("Finance"), ("Sales"),("Human Resource");
