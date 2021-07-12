@@ -32,7 +32,7 @@ const mainMenu = async () => {
     });
 
     if (selectedOption.option === "View all departments") {
-      const [rows] = await connection.execute(`SELECT * from department`);
+      const [rows] = await connection.execute(`SELECT * from department ORDER BY id`);
 
       console.table(rows);
     } else if (selectedOption.option === "View all roles") {
@@ -42,7 +42,8 @@ const mainMenu = async () => {
         department.name AS Department,
         salary AS Salary
       FROM role
-        JOIN department ON role.department_id = department.id;
+        JOIN department ON role.department_id = department.id
+        ORDER BY role.id;
       `);
 
       console.table(rows);
@@ -63,14 +64,45 @@ const mainMenu = async () => {
         `);
       console.table(rows);
     } else if (selectedOption.option === "Add a department") {
-      const {department} = await inquirer.prompt(Menu.addDepartment());
+      const { department } = await inquirer.prompt(Menu.addDepartment());
       console.log(department);
 
       const [results] = await connection.execute(
-        `INSERT INTO department (name) VALUES (?);`, [department]
+        `INSERT INTO department (name) VALUES (?);`,
+        [department]
       );
       console.log(
         `You added ${results.affectedRows} new department with an id of ${results.insertId}`
+      );
+    } else if (selectedOption.option === "Add a role") {
+      const [rows] = await connection.execute(`SELECT * from department`);
+      console.log(rows);
+      const existingDepartmentsNames = rows.map((item) => item.name);
+      console.log(existingDepartmentsNames);
+
+      const { roleName, salary } = await inquirer.prompt(Menu.addRole());
+      console.log(roleName, salary);
+
+      const { department } = await inquirer.prompt(
+        Menu.selectDepartment(existingDepartmentsNames)
+      );
+      console.log(department);
+
+      const [row] = await connection.execute(
+        `SELECT id from department where name =?`,
+        [department]
+      );
+      //   Expect only the first object because the departments qre unique
+      console.log(row[0].id);
+      const departmentID = row[0].id;
+
+      const [results] = await connection.execute(
+        `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);`,
+        [roleName, salary, departmentID]
+      );
+
+      console.log(
+        `You added ${results.affectedRows} new role with an id of ${results.insertId}`
       );
     }
 
