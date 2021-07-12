@@ -47,8 +47,6 @@ const mainMenu = async () => {
 
       console.table(rows);
     } else if (selectedOption.option === "View all employees") {
-      // THEN I am presented with a formatted table
-      // showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
       const [rows] = await connection.execute(`
       SELECT emp.id AS 'Employee ID',
         emp.first_name AS 'First Name',
@@ -63,7 +61,17 @@ const mainMenu = async () => {
         LEFT JOIN employee man ON emp.manager_id = man.id
         ORDER BY emp.id;
         `);
-        console.table(rows);
+      console.table(rows);
+    } else if (selectedOption.option === "Add a department") {
+      const {department} = await inquirer.prompt(Menu.addDepartment());
+      console.log(department);
+
+      const [results] = await connection.execute(
+        `INSERT INTO department (name) VALUES (?);`, [department]
+      );
+      console.log(
+        `You added ${results.affectedRows} new department with an id of ${results.insertId}`
+      );
     }
 
     test();
