@@ -32,7 +32,9 @@ const mainMenu = async () => {
     });
 
     if (selectedOption.option === "View all departments") {
-      const [rows] = await connection.execute(`SELECT * from department ORDER BY id`);
+      const [rows] = await connection.execute(
+        `SELECT * from department ORDER BY id`
+      );
 
       console.table(rows);
     } else if (selectedOption.option === "View all roles") {
@@ -104,31 +106,65 @@ const mainMenu = async () => {
       console.log(
         `You added ${results.affectedRows} new role with an id of ${results.insertId}`
       );
-
-
     } else if (selectedOption.option === "Add an employee") {
-      const [rows] = await connection.execute(`SELECT employee.first_name, employee.last_name, employee.id from employee`);
+      // Getting first and last names START
+      const { firstName, lastName } = await inquirer.prompt(Menu.addName());
+      console.log(firstName, lastName);
+      // Getting first and last names END
 
-      console.log(rows);
-      const existingEmployees = rows.map((item) => {
+      // Getting a role ID START
+      const [rowsRoles] = await connection.execute(
+        `SELECT title, id from role`
+      );
+
+      console.log(rowsRoles);
+      const existingRoles = rowsRoles.map((role) => {
         return {
-        name: item.first_name + " " + item.last_name,
-        value: item.id
-      }
-        });
-        const noManagerOption = {
-          name: "No manager assigned",
-          value: null
-        }
+          name: role.title,
+          value: role.id,
+        };
+      });
+
+      const { roleId } = await inquirer.prompt(Menu.selectRole(existingRoles));
+      console.log(roleId);
+      // Getting a role ID END
+
+      // Getting a manager ID START
+      const [rowsEmployees] = await connection.execute(
+        `SELECT first_name, last_name, id from employee`
+      );
+
+      console.log(rowsEmployees);
+      const existingEmployees = rowsEmployees.map((employee) => {
+        return {
+          name: employee.first_name + " " + employee.last_name,
+          value: employee.id,
+        };
+      });
+      const noManagerOption = {
+        name: `"No manager assigned"`,
+        value: null,
+      };
       existingEmployees.splice(0, 0, noManagerOption);
       console.log(existingEmployees);
 
-      const { manager } = await inquirer.prompt(
+      const { managerId } = await inquirer.prompt(
         Menu.selectManager(existingEmployees)
       );
-      console.log(manager);
+      console.log(managerId);
+      // Getting a manager ID END
 
+      // Inserting a new record to employee table START
+      console.log(firstName, lastName, roleId, managerId);
+      const [results] = await connection.execute(
+        `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);`,
+        [firstName, lastName, roleId, managerId]
+      );
 
+      console.log(
+        `You added ${results.affectedRows} new employee with an id of ${results.insertId}`
+      );
+      // Inserting a new record to employee table END
     }
 
     test();
