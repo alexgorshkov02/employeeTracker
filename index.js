@@ -104,6 +104,31 @@ const mainMenu = async () => {
       console.log(
         `You added ${results.affectedRows} new role with an id of ${results.insertId}`
       );
+
+
+    } else if (selectedOption.option === "Add an employee") {
+      const [rows] = await connection.execute(`SELECT employee.first_name, employee.last_name, employee.id from employee`);
+
+      console.log(rows);
+      const existingEmployees = rows.map((item) => {
+        return {
+        name: item.first_name + " " + item.last_name,
+        value: item.id
+      }
+        });
+        const noManagerOption = {
+          name: "No manager assigned",
+          value: null
+        }
+      existingEmployees.splice(0, 0, noManagerOption);
+      console.log(existingEmployees);
+
+      const { manager } = await inquirer.prompt(
+        Menu.selectManager(existingEmployees)
+      );
+      console.log(manager);
+
+
     }
 
     test();
