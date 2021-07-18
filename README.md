@@ -19,12 +19,13 @@ Employee Tracker is a command-line application which manages a company's employe
 
 Precondition steps: Install and configure a database server.
 
+Installation steps:
 1) Clone the code from this repository.
 2) Run "npm install" in the console from the app directory.
-3) Connect to a database.
-4) Run 
-
- 
+3) Connect to a database server.
+4) Run "source db/db.sql" to create a schema.
+5) Run "source db/schema.sql" to create a schema.
+6) Run "source db/seeds.sql" if you need some initial data for testing.
 
 
 ## Usage Information
