@@ -17,9 +17,6 @@ const mainMenu = async () => {
   try {
     // Get an option from a user
     const selectedOption = await inquirer.prompt(Menu.mainMenu());
-    console.log(selectedOption);
-
-    // const request = new DBRequests(selectedOption.option);
 
     // get the client
     const mysql = require("mysql2/promise");
@@ -67,7 +64,6 @@ const mainMenu = async () => {
       console.table(rows);
     } else if (selectedOption.option === "Add a department") {
       const { department } = await inquirer.prompt(Menu.addDepartment());
-      console.log(department);
 
       const [results] = await connection.execute(
         `INSERT INTO department (name) VALUES (?);`,
@@ -78,24 +74,20 @@ const mainMenu = async () => {
       );
     } else if (selectedOption.option === "Add a role") {
       const [rows] = await connection.execute(`SELECT * from department`);
-      console.log(rows);
       const existingDepartmentsNames = rows.map((item) => item.name);
-      console.log(existingDepartmentsNames);
 
       const { roleName, salary } = await inquirer.prompt(Menu.addRole());
-      console.log(roleName, salary);
 
       const { department } = await inquirer.prompt(
         Menu.selectDepartment(existingDepartmentsNames)
       );
-      console.log(department);
 
       const [row] = await connection.execute(
         `SELECT id from department where name =?`,
         [department]
       );
-      //   Expect only the first object because the departments qre unique
-      console.log(row[0].id);
+
+      // Expect only the first object because the departments qre unique
       const departmentID = row[0].id;
 
       const [results] = await connection.execute(
@@ -107,17 +99,14 @@ const mainMenu = async () => {
         `You added ${results.affectedRows} new role with an id of ${results.insertId}`
       );
     } else if (selectedOption.option === "Add an employee") {
-      // Getting first and last names START
+      // Getting first and last names
       const { firstName, lastName } = await inquirer.prompt(Menu.addName());
-      console.log(firstName, lastName);
-      // Getting first and last names END
 
       // Getting a role ID START
       const [rowsRoles] = await connection.execute(
         `SELECT title, id from role`
       );
 
-      console.log(rowsRoles);
       const existingRoles = rowsRoles.map((role) => {
         return {
           name: role.title,
@@ -126,7 +115,6 @@ const mainMenu = async () => {
       });
 
       const { roleId } = await inquirer.prompt(Menu.selectRole(existingRoles));
-      console.log(roleId);
       // Getting a role ID END
 
       // Getting a manager ID START
@@ -134,7 +122,6 @@ const mainMenu = async () => {
         `SELECT first_name, last_name, id from employee`
       );
 
-      console.log(rowsEmployees);
       const existingEmployees = rowsEmployees.map((employee) => {
         return {
           name: employee.first_name + " " + employee.last_name,
@@ -146,16 +133,13 @@ const mainMenu = async () => {
         value: null,
       };
       existingEmployees.splice(0, 0, noManagerOption);
-      console.log(existingEmployees);
 
       const { managerId } = await inquirer.prompt(
         Menu.selectManager(existingEmployees)
       );
-      console.log(managerId);
       // Getting a manager ID END
 
       // Inserting a new record to employee table START
-      console.log(firstName, lastName, roleId, managerId);
       const [results] = await connection.execute(
         `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);`,
         [firstName, lastName, roleId, managerId]
@@ -171,7 +155,6 @@ const mainMenu = async () => {
         `SELECT first_name, last_name, id from employee`
       );
 
-      console.log(rowsEmployees);
       const existingEmployees = rowsEmployees.map((employee) => {
         return {
           name: employee.first_name + " " + employee.last_name,
@@ -182,7 +165,6 @@ const mainMenu = async () => {
       const { employeeId } = await inquirer.prompt(
         Menu.selectEmployee(existingEmployees)
       );
-      console.log(employeeId);
       // Getting a employee ID END
 
       // Getting a role ID START
@@ -190,7 +172,6 @@ const mainMenu = async () => {
         `SELECT title, id from role`
       );
 
-      console.log(rowsRoles);
       const existingRoles = rowsRoles.map((role) => {
         return {
           name: role.title,
@@ -199,7 +180,6 @@ const mainMenu = async () => {
       });
 
       const { roleId } = await inquirer.prompt(Menu.selectRole(existingRoles));
-      console.log(roleId);
       // Getting a role ID END
 
       // Updating a role of the selected user START
@@ -207,7 +187,6 @@ const mainMenu = async () => {
         `UPDATE employee SET role_id = ? WHERE id = ?;`,
         [roleId, employeeId]
       );
-      console.log(results);
 
       if (results.serverStatus === 2 && results.changedRows === 1) {
         console.log(`The role has been updated.`);
@@ -219,15 +198,10 @@ const mainMenu = async () => {
       // Updating a role of the selected user END
     }
 
-    test();
     mainMenu();
   } catch (error) {
     console.log(`Error: ${error}`);
   }
-};
-
-const test = () => {
-  console.log(`TEST`);
 };
 
 init();
