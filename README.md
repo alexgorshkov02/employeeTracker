@@ -5,7 +5,14 @@
 
 ## Description
   
-Employee Tracker is a command-line application which manages a company's employee database
+Employee Tracker is a command-line application which manages a company's employee database. There are the next options in the application:
+* View all departments
+* View all roles
+* View all employees
+* Add a department
+* Add a role
+* Add an employee
+* Update an employee role
   
   
 ## Table of Contents
