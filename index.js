@@ -165,6 +165,58 @@ const mainMenu = async () => {
         `You added ${results.affectedRows} new employee with an id of ${results.insertId}`
       );
       // Inserting a new record to employee table END
+    } else if (selectedOption.option === "Update an employee role") {
+      // Getting a employee ID START
+      const [rowsEmployees] = await connection.execute(
+        `SELECT first_name, last_name, id from employee`
+      );
+
+      console.log(rowsEmployees);
+      const existingEmployees = rowsEmployees.map((employee) => {
+        return {
+          name: employee.first_name + " " + employee.last_name,
+          value: employee.id,
+        };
+      });
+
+      const { employeeId } = await inquirer.prompt(
+        Menu.selectEmployee(existingEmployees)
+      );
+      console.log(employeeId);
+      // Getting a employee ID END
+
+      // Getting a role ID START
+      const [rowsRoles] = await connection.execute(
+        `SELECT title, id from role`
+      );
+
+      console.log(rowsRoles);
+      const existingRoles = rowsRoles.map((role) => {
+        return {
+          name: role.title,
+          value: role.id,
+        };
+      });
+
+      const { roleId } = await inquirer.prompt(Menu.selectRole(existingRoles));
+      console.log(roleId);
+      // Getting a role ID END
+
+      // Updating a role of the selected user START
+      const [results] = await connection.execute(
+        `UPDATE employee SET role_id = ? WHERE id = ?;`,
+        [roleId, employeeId]
+      );
+      console.log(results);
+
+      if (results.serverStatus === 2 && results.changedRows === 1) {
+        console.log(`The role has been updated.`);
+      } else if (results.serverStatus === 2 && results.changedRows === 0) {
+        console.log(`The employee already has the selected role.`);
+      } else {
+        console.log(`An error has occurred.`);
+      }
+      // Updating a role of the selected user END
     }
 
     test();
