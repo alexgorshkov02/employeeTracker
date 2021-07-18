@@ -1,41 +1,35 @@
-const db = require("./db/connection");
+const connectToDatabase = require("./db/connection");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
 const Menu = require("./lib/Menu");
+let connection;
 
 // Establish DB connection
-// db.connect((err) => {
-//   if (err) throw err;
-//   console.log("Database connected.");
-// });
 
-const init = () => {
-  mainMenu();
+const init = async () => {
+  try {
+    connection = await connectToDatabase();
+    console.log("Database connected.");
+    mainMenu();
+  }
+  catch(err) {
+    console.log("Error connecting to database.", err);
+  }
 };
 
 const mainMenu = async () => {
   try {
-    // Get an option from a user
-    const selectedOption = await inquirer.prompt(Menu.mainMenu());
+    // Get a menu option from a user
+    const {option} = await inquirer.prompt(Menu.mainMenu());
 
-    // get the client
-    const mysql = require("mysql2/promise");
-    // create the connection
-    const connection = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "testpass1",
-      database: "employees",
-    });
-
-    if (selectedOption.option === "View all departments") {
-      const [rows] = await connection.execute(
+    if (option === "View all departments") {
+      let [rows] = await connection.execute(
         `SELECT * from department ORDER BY id`
       );
 
       console.table(rows);
-    } else if (selectedOption.option === "View all roles") {
-      const [rows] = await connection.execute(`
+    } else if (option === "View all roles") {
+      let [rows] = await connection.execute(`
       SELECT title AS 'Job title',
         role.id AS id,
         department.name AS Department,
@@ -46,7 +40,7 @@ const mainMenu = async () => {
       `);
 
       console.table(rows);
-    } else if (selectedOption.option === "View all employees") {
+    } else if (option === "View all employees") {
       const [rows] = await connection.execute(`
       SELECT emp.id AS 'Employee ID',
         emp.first_name AS 'First Name',
@@ -62,7 +56,7 @@ const mainMenu = async () => {
         ORDER BY emp.id;
         `);
       console.table(rows);
-    } else if (selectedOption.option === "Add a department") {
+    } else if (option === "Add a department") {
       const { department } = await inquirer.prompt(Menu.addDepartment());
 
       const [results] = await connection.execute(
@@ -72,7 +66,7 @@ const mainMenu = async () => {
       console.log(
         `You added ${results.affectedRows} new department with an id of ${results.insertId}`
       );
-    } else if (selectedOption.option === "Add a role") {
+    } else if (option === "Add a role") {
       const [rows] = await connection.execute(`SELECT * from department`);
       const existingDepartmentsNames = rows.map((item) => item.name);
 
@@ -98,7 +92,7 @@ const mainMenu = async () => {
       console.log(
         `You added ${results.affectedRows} new role with an id of ${results.insertId}`
       );
-    } else if (selectedOption.option === "Add an employee") {
+    } else if (option === "Add an employee") {
       // Getting first and last names
       const { firstName, lastName } = await inquirer.prompt(Menu.addName());
 
@@ -149,7 +143,7 @@ const mainMenu = async () => {
         `You added ${results.affectedRows} new employee with an id of ${results.insertId}`
       );
       // Inserting a new record to employee table END
-    } else if (selectedOption.option === "Update an employee role") {
+    } else if (option === "Update an employee role") {
       // Getting a employee ID START
       const [rowsEmployees] = await connection.execute(
         `SELECT first_name, last_name, id from employee`
