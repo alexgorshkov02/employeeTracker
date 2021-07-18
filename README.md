@@ -40,7 +40,7 @@ MIT
 
 ## Walkthrough Video
 
-[Link to the video]("TODO: Add a link") 
+[Link to the video]("https://drive.google.com/file/d/1_mnKRYEChdP4PWYxL1XpZ_NK1ohdYH-g/view") 
 
 
 ## Questions
