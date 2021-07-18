@@ -40,7 +40,7 @@ MIT
 
 ## Walkthrough Video
 
-[Link to the video]("https://drive.google.com/file/d/1_mnKRYEChdP4PWYxL1XpZ_NK1ohdYH-g/view") 
+[Link to the video](https://drive.google.com/file/d/1_mnKRYEChdP4PWYxL1XpZ_NK1ohdYH-g/view) 
 
 
 ## Questions
